@@ -307,8 +307,8 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
     deploy ? bltouch.deploy() : bltouch.stow();
 
   #elif HAS_Z_SERVO_PROBE
-
-    MOVE_SERVO(Z_PROBE_SERVO_NR, servo_angles[Z_PROBE_SERVO_NR][deploy ? 0 : 1]);
+    //MOVE_SERVO(Z_PROBE_SERVO_NR, servo_angles[Z_PROBE_SERVO_NR][deploy ? 0 : 1]);
+    deploy ? DEPLOY_Z_SERVO() : STOW_Z_SERVO();
 
   #elif EITHER(TOUCH_MI_PROBE, Z_PROBE_ALLEN_KEY)
 

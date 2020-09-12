@@ -104,12 +104,16 @@
 
   #if HAS_Z_SERVO_PROBE
     #define DEPLOY_Z_SERVO() MOVE_SERVO(Z_PROBE_SERVO_NR, servo_angles[Z_PROBE_SERVO_NR][0])
-    #define STOW_Z_SERVO() MOVE_SERVO(Z_PROBE_SERVO_NR, servo_angles[Z_PROBE_SERVO_NR][1])
+    #ifdef DEACTIVATE_SERVOS_AFTER_STOW
+      #define STOW_Z_SERVO() MOVE_SERVO_DEACTIVATE(Z_PROBE_SERVO_NR, servo_angles[Z_PROBE_SERVO_NR][1])
+    #else
+      #define STOW_Z_SERVO() MOVE_SERVO(Z_PROBE_SERVO_NR, servo_angles[Z_PROBE_SERVO_NR][1])
+    #endif
   #endif
 
 #endif // HAS_SERVO_ANGLES
 
 #define MOVE_SERVO(I, P) servo[I].move(P)
-
+#define MOVE_SERVO_DEACTIVATE(I, P) servo[I].move(P, true)
 extern HAL_SERVO_LIB servo[NUM_SERVOS];
 extern void servo_init();

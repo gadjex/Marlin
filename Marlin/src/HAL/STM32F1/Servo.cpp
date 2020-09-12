@@ -45,13 +45,13 @@ uint8_t ServoCount = 0;
  *
  * This uses the smallest prescaler that allows an overflow < 2^16.
  */
-#define MAX_OVERFLOW    UINT16_MAX //((1 << 16) - 1)
-#define CYC_MSEC        (1000 * CYCLES_PER_MICROSECOND)
+#define MAX_OVERFLOW    UINT16_MAX //((1 << 16) - 1) 65535
+#define CYC_MSEC        (1000 * CYCLES_PER_MICROSECOND) //72000
 #define TAU_MSEC        20
-#define TAU_USEC        (TAU_MSEC * 1000)
-#define TAU_CYC         (TAU_MSEC * CYC_MSEC)
-#define SERVO_PRESCALER (TAU_CYC / MAX_OVERFLOW + 1)
-#define SERVO_OVERFLOW  ((uint16_t)round((double)TAU_CYC / SERVO_PRESCALER))
+#define TAU_USEC        (TAU_MSEC * 1000) //20000
+#define TAU_CYC         (TAU_MSEC * CYC_MSEC) //1,440,000
+#define SERVO_PRESCALER (TAU_CYC / MAX_OVERFLOW + 1) //22.97
+#define SERVO_OVERFLOW  ((uint16_t)round((double)TAU_CYC / SERVO_PRESCALER)) //62,690
 
 // Unit conversions
 #define US_TO_COMPARE(us) uint16_t(map((us), 0, TAU_USEC, 0, SERVO_OVERFLOW))
@@ -129,7 +129,7 @@ int32_t libServo::read() const {
   return 0;
 }
 
-void libServo::move(const int32_t value) {
+void libServo::move(const int32_t value, boolean deactivate) {
   constexpr uint16_t servo_delay[] = SERVO_DELAY;
   static_assert(COUNT(servo_delay) == NUM_SERVOS, "SERVO_DELAY must be an array NUM_SERVOS long.");
 
@@ -137,7 +137,12 @@ void libServo::move(const int32_t value) {
     angle = constrain(value, minAngle, maxAngle);
     servoWrite(pin, US_TO_COMPARE(ANGLE_TO_US(angle)));
     safe_delay(servo_delay[servoIndex]);
-    TERN_(DEACTIVATE_SERVOS_AFTER_MOVE, detach());
+
+    if (deactivate) {
+      detach();
+    } else {
+      TERN_(DEACTIVATE_SERVOS_AFTER_MOVE, detach());
+    }
   }
 }
 
